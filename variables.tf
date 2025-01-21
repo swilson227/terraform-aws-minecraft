@@ -126,6 +126,6 @@ variable "instance_type" {
 variable "allowed_cidrs" {
   description = "Allow these CIDR blocks to the server - default is the Universe"
   type        = string
-  default     = "0.0.0.0/0"
+  default     = "86.17.40.208/32"
 }
 

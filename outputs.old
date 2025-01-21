@@ -23,6 +23,7 @@ output "public_key" {
 }
 
 output "private_key" {
+  sensitive = true
   value = tls_private_key.ec2_ssh.*.private_key_pem
 }
 

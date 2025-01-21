@@ -1,3 +1,7 @@
+provider "aws" {
+  region  = "eu-west-1"
+}
+
 # VPC and Network Configuration
 resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
@@ -175,10 +179,26 @@ resource "aws_elb" "minecraft" {
   }
 }
 
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
 # EC2 Instance
 resource "aws_instance" "minecraft" {
-  ami           = "ami-0c55b159cbfafe1f0" # Replace with your desired AMI
-  instance_type = "t2.medium" # Increased instance size for Minecraft server
+  ami           = "ami-0ef0975ebdd78b77b" # Replace with your desired AMI
+  instance_type = "t3.medium" # Increased instance size for Minecraft server
 
   subnet_id                   = aws_subnet.private.id
   vpc_security_group_ids      = [aws_security_group.ec2.id]
