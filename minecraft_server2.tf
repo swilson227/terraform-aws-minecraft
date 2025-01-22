@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 # VPC and Network Configuration
-resource "aws_vpc" "main" {
+resource "aws_vpc" "minecraft" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
   enable_dns_support   = true
@@ -15,53 +15,27 @@ resource "aws_vpc" "main" {
 
 # Public Subnet for ELB
 resource "aws_subnet" "public" {
-  count             = 2
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.${count.index + 1}.0/24"
-  availability_zone = data.aws_availability_zones.available.names[count.index]
-
-  tags = {
-    Name = "public-subnet-${count.index + 1}"
-  }
-}
-
-# Private Subnet for EC2
-resource "aws_subnet" "private" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.10.0/24"
+  vpc_id            = aws_vpc.minecraft.id
+  cidr_block        = "10.0.0.0/24"
   availability_zone = data.aws_availability_zones.available.names[0]
 
   tags = {
-    Name = "private-subnet"
+    Name = "public-subnet"
   }
 }
 
 # Internet Gateway
 resource "aws_internet_gateway" "main" {
-  vpc_id = aws_vpc.main.id
+  vpc_id = aws_vpc.minecraft.id
 
   tags = {
     Name = "minecraft-igw"
   }
 }
 
-# NAT Gateway
-resource "aws_eip" "nat" {
-  domain = "vpc"
-}
-
-resource "aws_nat_gateway" "main" {
-  allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public[0].id
-
-  tags = {
-    Name = "minecraft-nat"
-  }
-}
-
 # Route Tables
 resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.main.id
+  vpc_id = aws_vpc.minecraft.id
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -73,68 +47,23 @@ resource "aws_route_table" "public" {
   }
 }
 
-resource "aws_route_table" "private" {
-  vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.main.id
-  }
-
-  tags = {
-    Name = "private-rt"
-  }
-}
-
 # Route Table Associations
 resource "aws_route_table_association" "public" {
-  count          = 2
-  subnet_id      = aws_subnet.public[count.index].id
+  subnet_id      = aws_subnet.public.id
   route_table_id = aws_route_table.public.id
-}
-
-resource "aws_route_table_association" "private" {
-  subnet_id      = aws_subnet.private.id
-  route_table_id = aws_route_table.private.id
-}
-
-# Security Groups
-resource "aws_security_group" "elb" {
-  name        = "minecraft-elb-sg"
-  description = "Security group for Minecraft ELB"
-  vpc_id      = aws_vpc.main.id
-
-  ingress {
-    from_port   = 25565
-    to_port     = 25565
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Minecraft server port"
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "minecraft-elb-sg"
-  }
 }
 
 resource "aws_security_group" "ec2" {
   name        = "minecraft-ec2-sg"
   description = "Security group for Minecraft EC2 instance"
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = aws_vpc.minecraft.id
 
   ingress {
     from_port       = 25565
     to_port         = 25565
     protocol        = "tcp"
-    security_groups = [aws_security_group.elb.id]
-    description     = "Minecraft server port from ELB"
+    cidr_blocks     = ["0.0.0.0/0"]
+    description     = "Minecraft server port from Internet"
   }
 
   egress {
@@ -149,60 +78,14 @@ resource "aws_security_group" "ec2" {
   }
 }
 
-# Classic Elastic Load Balancer
-resource "aws_elb" "minecraft" {
-  name            = "minecraft-elb"
-  subnets         = aws_subnet.public[*].id
-  security_groups = [aws_security_group.elb.id]
-
-  listener {
-    instance_port     = 25565
-    instance_protocol = "tcp"
-    lb_port          = 25565
-    lb_protocol      = "tcp"
-  }
-
-  health_check {
-    healthy_threshold   = 2
-    unhealthy_threshold = 10
-    timeout             = 10
-    target             = "TCP:25565"
-    interval           = 30
-  }
-
-  instances                 = [aws_instance.minecraft.id]
-  cross_zone_load_balancing = true
-  idle_timeout             = 400
-
-  tags = {
-    Name = "minecraft-elb"
-  }
-}
-
-data "aws_ami" "ubuntu" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = ["099720109477"] # Canonical
-}
-
 # EC2 Instance
 resource "aws_instance" "minecraft" {
   ami           = "ami-0ef0975ebdd78b77b" # Replace with your desired AMI
   instance_type = "t3.medium" # Increased instance size for Minecraft server
 
-  subnet_id                   = aws_subnet.private.id
+  subnet_id                   = aws_subnet.public.id
   vpc_security_group_ids      = [aws_security_group.ec2.id]
-  associate_public_ip_address = false
+  associate_public_ip_address = true
 
   root_block_device {
     volume_size = 30 # Increased volume size for Minecraft world data
@@ -232,6 +115,6 @@ data "aws_availability_zones" "available" {
 
 # Output the ELB DNS name
 output "minecraft_server_address" {
-  value       = aws_elb.minecraft.dns_name
+  value       = aws_instance.minecraft.public_ip
   description = "The DNS name of the Minecraft server"
 }
