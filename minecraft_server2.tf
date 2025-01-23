@@ -95,12 +95,15 @@ resource "aws_instance" "minecraft" {
   user_data = <<-EOF
               #!/bin/bash
               yum update -y
-              yum install -y java-17-amazon-corretto
+              yum install -y java-23-amazon-corretto java-23-amazon-corretto-devel
               mkdir -p /opt/minecraft
               cd /opt/minecraft
+              #groupadd minecraft
+              #adduser -r -d /opt/minecraft -g minecraft -G minecraft minecraft
               wget https://launcher.mojang.com/v1/objects/e00c4052dac1d59a1188b2aa9d5a87113aaf1122/server.jar
-              java -Xmx2048M -Xms2048M -jar server.jar nogui
               echo "eula=true" > eula.txt
+              sleep 10
+              java -Xmx2048M -Xms2048M -jar server.jar nogui
               EOF
 
   tags = {
