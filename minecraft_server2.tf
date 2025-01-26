@@ -100,7 +100,7 @@ resource "aws_instance" "minecraft" {
               cd /opt/minecraft
               #groupadd minecraft
               #adduser -r -d /opt/minecraft -g minecraft -G minecraft minecraft
-              #wget https://launcher.mojang.com/v1/objects/e00c4052dac1d59a1188b2aa9d5a87113aaf1122/server.jar
+              #wget https://piston-data.mojang.com/v1/objects/4707d00eb834b446575d89a61a11b5d548d8c001/server.jar
               curl -OJ https://meta.fabricmc.net/v2/versions/loader/1.21.4/0.16.10/1.0.1/server/jar
               echo "eula=true" > eula.txt
               sleep 10
