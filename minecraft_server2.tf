@@ -100,10 +100,12 @@ resource "aws_instance" "minecraft" {
               cd /opt/minecraft
               #groupadd minecraft
               #adduser -r -d /opt/minecraft -g minecraft -G minecraft minecraft
-              wget https://launcher.mojang.com/v1/objects/e00c4052dac1d59a1188b2aa9d5a87113aaf1122/server.jar
+              #wget https://launcher.mojang.com/v1/objects/e00c4052dac1d59a1188b2aa9d5a87113aaf1122/server.jar
+              curl -OJ https://meta.fabricmc.net/v2/versions/loader/1.21.4/0.16.10/1.0.1/server/jar
               echo "eula=true" > eula.txt
               sleep 10
-              java -Xmx2048M -Xms2048M -jar server.jar nogui
+              #java -Xmx2048M -Xms2048M -jar server.jar nogui
+              java -Xmx2G -jar fabric-server-mc.1.21.4-loader.0.16.10-launcher.1.0.1.jar nogui
               EOF
 
   tags = {
