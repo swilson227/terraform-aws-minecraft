@@ -57,7 +57,7 @@ resource "aws_security_group" "ec2" {
   name        = "minecraft-ec2-sg"
   description = "Security group for Minecraft EC2 instance"
   vpc_id      = aws_vpc.minecraft.id
-}
+
   ingress {
     from_port       = 25565
     to_port         = 25565
