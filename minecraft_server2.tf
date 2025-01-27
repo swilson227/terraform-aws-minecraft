@@ -88,18 +88,19 @@ resource "aws_security_group" "ec2" {
     protocol  = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-    ingress {
-      from_port       = 24454
-      to_port         = 24454
-      protocol        = "udp"
-      cidr_blocks     = ["0.0.0.0/0"]
-      description     = "Voice chat"
 
-   }
+  ingress {
+    from_port       = 24454
+    to_port         = 24454
+    protocol        = "udp"
+    cidr_blocks     = ["0.0.0.0/0"]
+    description     = "Voice chat"
+  }
 
    tags = {
      Name = "minecraft-ec2-sg"
    }
+}
 
 
 # EC2 Instance
