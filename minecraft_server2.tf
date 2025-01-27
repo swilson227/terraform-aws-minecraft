@@ -57,7 +57,7 @@ resource "aws_security_group" "ec2" {
   name        = "minecraft-ec2-sg"
   description = "Security group for Minecraft EC2 instance"
   vpc_id      = aws_vpc.minecraft.id
-
+}
   ingress {
     from_port       = 25565
     to_port         = 25565
@@ -83,16 +83,24 @@ resource "aws_security_group" "ec2" {
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+    ingress {
+      from_port       = 24454
+      to_port         = 24454
+      protocol        = "udp"
+      cidr_blocks     = ["0.0.0.0/0"]
+      description     = "Voice chat"
 
-  tags = {
-    Name = "minecraft-ec2-sg"
-  }
-}
+   }
+
+   tags = {
+     Name = "minecraft-ec2-sg"
+   }
+
 
 # EC2 Instance
 resource "aws_instance" "minecraft" {
@@ -149,12 +157,15 @@ resource "aws_instance" "minecraft" {
               cd mods
               ####MODS
               curl -OJ https://download.geysermc.org/v2/projects/geyser/versions/2.6.0/builds/751/downloads/fabric
-              curl -OJ https://https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/fabric
-              curl -OJ https://modrinth.com/mod/floodgate
-              curl -OJ
+              mv '=_UTF-8_Q_Geyser-Fabric.jar_=' Geyser-Fabric.jar
+
+              curl -OJ https://mediafilez.forgecdn.net/files/6110/930/fabric-api-0.115.0%2B1.21.4.jar
+              curl -OJ https://cdn.modrinth.com/data/bWrNNfkb/versions/nyg969vQ/Floodgate-Fabric-2.2.4-b43.jar
+              curl -OJ https://mediafilez.forgecdn.net/files/6108/92/lithium-fabric-0.14.7%2Bmc1.21.4.jar
+              curl -OJ https://mediafilez.forgecdn.net/files/5959/562/viewdistancefix-fabric-1.21.4-1.0.2.jar
+              curl -OJ https://mediafilez.forgecdn.net/files/5998/380/voicechat-fabric-1.21.4-2.5.27.jar
               ####END_MODS
               cd /opt/minecraft
-
               ## Remove old world to make sure seed used
               rm -rf world
 
