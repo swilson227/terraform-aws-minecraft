@@ -66,6 +66,22 @@ resource "aws_security_group" "ec2" {
     description     = "Minecraft server port from Internet"
   }
 
+  ingress {
+    from_port       = 19132
+    to_port         = 19132
+    protocol        = "tcp"
+    cidr_blocks     = ["0.0.0.0/0"]
+    description     = "Bedrock server port from Internet"
+  }
+
+  ingress {
+    from_port       = 19132
+    to_port         = 19132
+    protocol        = "udp"
+    cidr_blocks     = ["0.0.0.0/0"]
+    description     = "Bedrock server port from Internet"
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -94,17 +110,55 @@ resource "aws_instance" "minecraft" {
 
   user_data = <<-EOF
               #!/bin/bash
+              ### Install updates and Java ###
               yum update -y
               yum install -y java-23-amazon-corretto java-23-amazon-corretto-devel
+
+              ### Create Directory ###
               mkdir -p /opt/minecraft
               cd /opt/minecraft
+
+              ### TODO Create Group and User for Minecraft ###
               #groupadd minecraft
               #adduser -r -d /opt/minecraft -g minecraft -G minecraft minecraft
+
+              ### Install Minecraft or Fabric ###
               #wget https://piston-data.mojang.com/v1/objects/4707d00eb834b446575d89a61a11b5d548d8c001/server.jar
               curl -OJ https://meta.fabricmc.net/v2/versions/loader/1.21.4/0.16.10/1.0.1/server/jar
+
+              ### update configs and start Server to unpack ###
               echo "eula=true" > eula.txt
               sleep 10
               #java -Xmx2048M -Xms2048M -jar server.jar nogui
+              nohup java -Xmx2G -jar fabric-server-mc.1.21.4-loader.0.16.10-launcher.1.0.1.jar nogui &
+              sleep 120
+
+              ### Kill server to install mods etc ####
+              PID=`ps -C java -o pid=`
+              kill -9 $PID
+
+              ### Update Admin ###
+              sed -i 's/\[/\[{"uuid":"d1fc7b54-f1ff-4c0a-b0cd-378d10ab69c5","name":"berbbobs","level":4}/' ops.json
+
+
+              ### Update level seed ##
+              LEVELSEED=9146440463328029107
+              sed -i "s\level-seed=\level-seed=$LEVELSEED\g" server.properties
+
+              ### install mods ###+
+              cd mods
+              ####MODS
+              curl -OJ https://download.geysermc.org/v2/projects/geyser/versions/2.6.0/builds/751/downloads/fabric
+              curl -OJ https://https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/fabric
+              curl -OJ https://modrinth.com/mod/floodgate
+              curl -OJ
+              ####END_MODS
+              cd /opt/minecraft
+
+              ## Remove old world to make sure seed used
+              rm -rf world
+
+              ### Restart Server
               java -Xmx2G -jar fabric-server-mc.1.21.4-loader.0.16.10-launcher.1.0.1.jar nogui
               EOF
 
