@@ -1,7 +1,3 @@
-provider "aws" {
-  region  = "eu-west-1"
-}
-
 # VPC and Network Configuration
 resource "aws_vpc" "minecraft" {
   cidr_block           = "10.0.0.0/16"
@@ -190,4 +186,12 @@ data "aws_availability_zones" "available" {
 output "minecraft_server_address" {
   value       = aws_instance.minecraft.public_ip
   description = "The DNS name of the Minecraft server"
+}
+
+resource "aws_route53_record" "minecraft" {
+  zone_id = data.aws_route53_zone.bertiewilson.id
+  name    = "minecraft.${data.aws_route53_zone.bertiewilson.name}"
+  type    = "A"
+  ttl     = "300"
+  records = [aws_instance.minecraft.public_ip]
 }
