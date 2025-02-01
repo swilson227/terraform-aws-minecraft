@@ -161,10 +161,12 @@ resource "aws_instance" "minecraft" {
               mv '=_UTF-8_Q_Geyser-Fabric.jar_=' Geyser-Fabric.jar
 
               curl -OJ https://mediafilez.forgecdn.net/files/6110/930/fabric-api-0.115.0%2B1.21.4.jar
+              curl -OJ https://download.geysermc.org/v2/projects/geyser/versions/2.6.0/builds/753/downloads/fabric
               curl -OJ https://cdn.modrinth.com/data/bWrNNfkb/versions/nyg969vQ/Floodgate-Fabric-2.2.4-b43.jar
               curl -OJ https://mediafilez.forgecdn.net/files/6108/92/lithium-fabric-0.14.7%2Bmc1.21.4.jar
               curl -OJ https://mediafilez.forgecdn.net/files/5959/562/viewdistancefix-fabric-1.21.4-1.0.2.jar
               curl -OJ https://mediafilez.forgecdn.net/files/5998/380/voicechat-fabric-1.21.4-2.5.27.jar
+              #curl -OJ https://vanillatweaks.net/share#t7X9I8
               ####END_MODS
               cd /opt/minecraft
               ## Remove old world to make sure seed used
