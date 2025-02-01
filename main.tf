@@ -162,7 +162,9 @@ resource "aws_instance" "minecraft" {
               curl -OJ https://mediafilez.forgecdn.net/files/6108/92/lithium-fabric-0.14.7%2Bmc1.21.4.jar
               curl -OJ https://mediafilez.forgecdn.net/files/5959/562/viewdistancefix-fabric-1.21.4-1.0.2.jar
               curl -OJ https://mediafilez.forgecdn.net/files/5998/380/voicechat-fabric-1.21.4-2.5.27.jar
-              #curl -OJ https://vanillatweaks.net/share#t7X9I8
+              #Fix the weird Geyser naming
+              mv *Geyser-Fabric.jar* Geyser-Fabric.jar
+              
               ####END_MODS
               cd /opt/minecraft
               ## Remove old world to make sure seed used
@@ -170,6 +172,12 @@ resource "aws_instance" "minecraft" {
 
               ### Restart Server
               java -Xmx2G -jar fabric-server-mc.1.21.4-loader.0.16.10-launcher.1.0.1.jar nogui
+
+              Needs adding in for datapacks
+              #cd /opt/minecraft/world/datapacks
+              #curl 'https://vanillatweaks.net/download/VanillaTweaks_d271557_UNZIP_ME.zip'   -H 'Referer: https://vanillatweaks.net/share/'   -H 'Upgrade-Insecure-Requests: 1'   -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36'   -H 'sec-ch-ua: "Not A(Brand";v="8", "Chromium";v="132", "Google Chrome";v="132"'   -H 'sec-ch-ua-mobile: ?0'   -H 'sec-ch-ua-platform: "Windows"' --output stuff.zip
+              #unzip stuff.zip
+              #rm -f stuff.zip
               EOF
 
   tags = {
