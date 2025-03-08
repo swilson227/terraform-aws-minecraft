@@ -175,6 +175,12 @@ resource "aws_instance" "minecraft" {
               ## Remove old world to make sure seed used
               rm -rf world
 
+              # Needs adding in for datapacks
+              #cd /opt/minecraft/world/datapacks
+              #curl 'https://vanillatweaks.net/download/VanillaTweaks_d271557_UNZIP_ME.zip'   -H 'Referer: https://vanillatweaks.net/share/'   -H 'Upgrade-Insecure-Requests: 1'   -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36'   -H 'sec-ch-ua: "Not A(Brand";v="8", "Chromium";v="132", "Google Chrome";v="132"'   -H 'sec-ch-ua-mobile: ?0'   -H 'sec-ch-ua-platform: "Windows"' --output stuff.zip
+              #unzip stuff.zip
+              #rm -f stuff.zip
+
               ### Restart Server
               java -Xmx2G -jar fabric-server-mc.1.21.4-loader.0.16.10-launcher.1.0.1.jar nogui
               EOF
